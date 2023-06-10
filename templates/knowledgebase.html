@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+
+{% block content %}
+
+
+{{ content|safe }}
+
+
+<script>
+    function mostraRighe(button) {
+        var righeNascoste = document.getElementsByClassName("righe-nascoste");
+        if (righeNascoste[0].style.display === "none") {
+          for (var i = 0; i < righeNascoste.length; i++) {
+            righeNascoste[i].style.display = "table-row";
+          }
+          button.innerHTML = "Nascondi righe";
+        } else {
+          for (var i = 0; i < righeNascoste.length; i++) {
+            righeNascoste[i].style.display = "none";
+          }
+          button.innerHTML = "Mostra altre righe";
+        }
+      }
+</script>
+
+
+{% endblock content %}
