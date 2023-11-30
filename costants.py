@@ -11,6 +11,7 @@ INDEX = 'index.html'
 KNOWLEDGEBASE = 'knowledgebase.html'
 THREATS = 'threats.html'
 SEARCH = 'search.html'
+ATTACKIMPACT = "attackimpact.html"
 
 # Varie
 SEC_TOKEN = '2671d7aa-5fa1-4724-9e13-5232f3291374'

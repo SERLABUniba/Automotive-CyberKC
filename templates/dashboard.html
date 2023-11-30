@@ -7,7 +7,7 @@
     <div class="row align-items-start">
       <div class="col" style="border: solid; border-width: 1px; height: 250px; display: flex; align-items: center; justify-content: center; background-color: #002060; border-radius: 15px; border-color: grey;">
         <div>
-          <h4>Open threats</h4><h1>{{ numberThreats|safe }}</h1>
+          <h4>Open threats</h4><h1 id="numberOfThreats">{{ numberThreats|safe }}</h1>
         </div>
       </div>
       <div class="col offset-md-1" style="border: solid; border-width: 1px; height: 250px; display: flex; align-items: center; justify-content: center; background-color: #A30000; border-radius: 15px; border-color: grey;">
@@ -23,6 +23,18 @@
       </div>
     </div>
 </div>
+
+<script>
+  async function checkForUpdates(){
+    const response = await fetch('/checkUpdate');
+    threatNumber = response['status'];
+    dashboardNumberOfThreats = document.getElementById("numberOfThreats").innerHTML;
+    if (threatNumber > dashboardNumberOfThreats){
+      location.reload();
+    }
+  }
+  setInterval(checkForUpdates, 1000);
+</script>
 {{ content|safe }}
 
 {% endblock content %}
