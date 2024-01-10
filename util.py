@@ -1,10 +1,13 @@
-import requests
+#import requests
 import json
 import datetime
 from cvss import CVSS3
 from cvss.constants3 import *
 from manage_files import *
 import os
+from time import strftime, localtime
+from statistics import mean
+from varHTML import *
 
 # Attack path section
 
@@ -313,6 +316,21 @@ def getTRM(offenses):
   return maxRisk
 
 
+def getSplunkTRM(offenses):
+  maxRisk = 0
+  for offense in offenses:
+
+    capec = offense[6]
+    builder = offense[7]
+    model = offense[2]
+    year = offense[8]
+
+    risk = getRSM(capec, builder, model, year)
+    if risk > maxRisk: maxRisk = risk
+
+  return maxRisk
+
+
 def contentHeaderThreatCapec(capec, builder, model):
   threatName = str(getThreat( int(capec[capec.index('-')+1:]) ))
   
@@ -324,8 +342,6 @@ def contentHeaderThreatCapec(capec, builder, model):
     return f'<h2 style="color: white; padding-top: 1%">Threat: {threatName} on {model} </h2>'
   else:
     return f'<h2 style="color: white; padding-top: 1%">Threat: {threatName}</h2>'
-
-
 
 
 # Threats section
@@ -361,7 +377,7 @@ def tableThreats(offenses, orderBy):
 
 
 def rowTableThreats(offense):
-   
+
   converted_time  = datetime.datetime.fromtimestamp(offense['last_updated_time'] / 1000.0)
   formatted_time  = converted_time .strftime("%Y-%m-%d %H:%M:%S")
 
@@ -372,7 +388,7 @@ def rowTableThreats(offense):
   builder = infoCar['Builder']
   model = infoCar['Model']
   year = infoCar['Year']
-  
+
   content = f'''
         <tr>
           <td>{offense['id']}</td>
@@ -387,8 +403,81 @@ def rowTableThreats(offense):
   '''
 
   return content
-   
 
+
+def generateRow(row):
+  carModel = row[2]
+  timestamp = row[1]
+  attackName = row[0]
+  attackCategory = row[3]
+  attackID = row[4]
+  status = row[5]
+  capec = row[6]
+  builder = row[7]
+  year = row[8]
+
+  content = f'''
+        <tr>
+          <td>{attackID}</td>
+          <td><a href="threat?capec={capec}&builder={builder}&model={carModel}&year={year}"
+            class="color-white link-hover" style="font-weight:500;">{attackName}</td>
+          <td>{builder} {carModel}</td>
+          <td>{attackCategory}</td>
+          <td>{timestamp}</td>
+          <td>{getRSM(capec, builder, carModel, year)}</td>
+          <td>{status}</td>
+          <td>
+            <a href="attackImpact?capec={capec}&builder={""}&model={""}&year={""}&attackName={attackName}" class="color-white link-hover" style="font-weight:500;"><u>View</u>
+          </td>
+          <td>
+            <a href="attackImpact?capec={capec}&builder={builder}&model={carModel}&year={year}&attackName={attackName}" class="color-white link-hover" style="font-weight:500;"><u>View</u>
+          </td>
+        </tr>
+  '''
+
+  return content
+
+
+def generateThreatsTable(offenses, orderBy):
+  rows = ""
+  for offense in offenses:
+    rows = rows + generateRow(offense)
+
+  content = '''
+
+   <table id="table-threats" data-sort-name="''' + orderBy + '''" data-sort-order="desc" class="table table-hover table-dark">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Description</th>
+      <th scope="col">Car</th>
+      <th scope="col">Category</th>
+      <th data-field="time" scope="col">Last updated time</th>
+      <th data-field="risk" scope="col">RS<sub>M</sub></th>
+      <th scope="col">Status</th>
+      <th scope="col">Impact</th>
+      <th scope="col">Detailed Impact</th>
+    </tr>
+  </thead>
+  <tbody>
+  ''' + rows + '''
+
+  </tbody>
+</table>
+
+   '''
+  return content
+
+def defineAttackType(attack):
+  if attack == "DoS":
+    return "Flood", "125"
+  elif attack == "Gear Spoofing":
+    return "Bad Content", "28"
+  elif attack == "RPM Spoofing":
+    return "Bad Content", "28"
+  elif attack == "Fuzzy":
+    return "Bad Content", "28"
+   
 
 def connQradar(limit):
 
@@ -482,5 +571,122 @@ def getDescription(metric, value):
   return "None"
 
 
+def parseSplunkRequest(data):
+  attackName = data['search_name']
+  attackName = attackName[9:]
+  timestamp = int(data['result']['_time'])
+  hrtimestamp = strftime('%Y-%m-%d %H:%M:%S', localtime(timestamp))
+  return attackName, hrtimestamp
 
-   
+
+def generateAttackImpact(content, list_of_csv, risk_type, builder=str(), model=str(), year=str()):
+  connection = sqlite3.connect(DB)
+  connection.row_factory = sqlite3.Row
+
+  riskValues = []
+
+  i = 1
+  for l in list_of_csv:
+    j = 1
+    vectorCvss = []
+    maxWeight = 0
+    while j < (len(l)):
+      rows = connection.execute('SELECT * FROM Attacks WHERE ID = "' + l[j] + '"').fetchall()
+      for row in rows:
+        start = row['Exploitability'].find("CVSS:3.0")
+        end = row['Exploitability'].find(";")
+        cvss = row['Exploitability'][start: end]
+        vectorCvss.append(cvss)
+
+        if risk_type == "RS":
+          weight = weightRiskScore(row['Vehicle'], builder, model, year)
+          if maxWeight < weight: maxWeight = weight
+
+      j = j + 1
+
+    if risk_type == "RS":
+      risk = calculateRS(vectorCvss, maxWeight)
+    elif risk_type == "severity":
+      risk = calculateSeverity(vectorCvss)
+
+    riskValues.append(risk)
+    content = content + createAttackImpactRow(str(i), row, risk, risk_type)
+    i = i + 1
+  meanRisk = round(mean(riskValues), 1)
+  content = content + createFinalImpactRow(meanRisk, risk_type) +"</tbody></table></div>"
+  connection.close()
+  return content
+
+
+def createAttackImpactRow(number, row, risk, risk_type):
+  if risk_type == "severity":
+    if risk <= 33:
+      colorRisk = "99cbff"
+    elif risk <= 67:
+      colorRisk = "yellow"
+    else:
+      colorRisk = "red"
+
+  elif risk_type == "RS":
+    if risk <= 330:
+      colorRisk = "99cbff"
+    elif risk <= 670:
+      colorRisk = "yellow"
+    else:
+      colorRisk = "red"
+
+  content = '''
+   <tr scope="row">
+              <td> ''' + row['Consequence'] + ''' </td>
+              <td class="text-center"> 
+                ''' + str(risk) + '''
+              </td>
+              <td class="text-center">
+                <i class="bi bi-circle-fill bs-light" style="color:''' + colorRisk + ''';"></i>
+              </td>
+            </tr>
+
+
+   '''
+  return content
+
+def createFinalImpactRow(meanRiskValue, risk_type):
+  if risk_type == "severity":
+    if meanRiskValue <= 33:
+      colorRisk = "99cbff"
+    elif meanRiskValue <= 67:
+      colorRisk = "yellow"
+    else:
+      colorRisk = "red"
+
+  elif risk_type == "RS":
+    if meanRiskValue <= 330:
+      colorRisk = "99cbff"
+    elif meanRiskValue <= 670:
+      colorRisk = "yellow"
+    else:
+      colorRisk = "red"
+
+  content = '''
+  <tr scope="row">
+    <td style="opacity:0.0">Placeholder</td>
+    <td class="text-center"></td>
+    <td class="text-center">
+    </td>
+  </tr>
+  <tr scope="row" class="table-warning">
+    <td><b>Impact</b></td>
+    <td class="text-center"> <b>''' + str(meanRiskValue) + '''</b></td>
+    <td class="text-center">
+      <i class="bi bi-circle-fill bs-light" style="color:''' + colorRisk + ''';"></i>
+    </td>
+  </tr>
+  '''
+
+  return content
+
+def generateAttackImpactHeader(attackName, builder, model, year):
+  if builder == "":
+    return f'<h2 style="color: white; padding-top: 1%">{attackName} Impact</h2>'
+  else:
+    return f'<h2 style="color: white; padding-top: 1%">{attackName} Impact on {builder} {model} {year}</h2>'

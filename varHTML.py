@@ -60,3 +60,20 @@ def getHTML_contentThreatCapec():
   '''
 
   return content
+
+
+def getHTML_contentAttackImpact():
+    content = '''
+        <div class="table-responsive custom-table-responsive">
+        <table data-toggle="table" data-search="false" data-show-columns="false" data-pagination="false"  class="table custom-table table-hover table-dark ">
+          <thead>
+            <tr>
+              <th data-sortable="false" scope="col">Consequences</th>
+              <th data-sortable="false" data-field="risk" class="text-center" style="width:8%" scope="col">RS</th>
+              <th class="text-center" style="width:8%" scope="col">RI</th>
+            </tr>
+          </thead>
+          <tbody>
+  '''
+
+    return content

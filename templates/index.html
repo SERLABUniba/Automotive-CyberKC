@@ -151,7 +151,8 @@ button:hover i::after {
                 <h2>Automotive Knowledge Base for Supporting Vehicle-SOC Analysts</h2>   
             </div> 
             <div class="row-centered-element">
-                <button style="--clr:#002060" onclick=" enter()"><span>ENTRY</span><i></i></button> 
+                <button style="--clr:#002060" onclick="enter()"><span>QRadar</span><i></i></button>
+                <button style="--clr:#002060" onclick="enterSplunk()"><span>Splunk</span><i></i></button>
             </div>
         </div>
     </div>
@@ -162,7 +163,10 @@ button:hover i::after {
     function enter()
     {
          location.href = "dashboard";
-    } 
-    </script>
+    }
+    function enterSplunk(){
+        location.href= "splunkDashboard"
+    }
+</script>
 
 </html>

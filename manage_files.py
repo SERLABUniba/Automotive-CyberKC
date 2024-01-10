@@ -3,6 +3,21 @@ import csv
 import sqlite3
 from costants import *
 
+def insertAttack(attackName, timestamp, carModel, attackType, capec):
+  connection = sqlite3.connect('attacks.db')
+  cur = connection.cursor()
+  cur.execute('INSERT INTO Attacks(AttackName, Timestamp, CarModel, AttackType, Status, CAPEC, CarBuilder, CarYear) VALUES(?, ?, ?, ?, "Open", ?, "Kia", "2021")', (attackName, timestamp, carModel, attackType, capec))
+  connection.commit()
+  connection.close()
+
+def getNumberofThreats():
+  connection = sqlite3.connect('attacks.db')
+  cur = connection.cursor()
+  cur.execute('SELECT * FROM Attacks')
+  rows = cur.fetchall()
+  connection.close()
+  return rows
+
 def getCategories():
 
   with open(MAPSETTINGS) as f:
