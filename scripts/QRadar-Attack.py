@@ -34,6 +34,19 @@ udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 host_and_port = ('127.0.0.1', 5144)
 
+def read_csv(file_path):
+    
+    values_list = []
+
+    with open(file_path, 'r') as csv_file:
+        
+        csv_reader = csv.reader(csv_file)
+        
+        for row in csv_reader:
+            values_list.extend(row)
+
+    return values_list
+
 def load_dataset(file_path):
     
     df = pd.read_csv(file_path, header=None)
@@ -79,6 +92,8 @@ def inject_payloads_from_dataset(path_to_dataset, log_file_name, start, end):
     
     df = load_dataset(path_to_dataset)
     
+    idCanR = read_csv('id_can_R.csv')
+    
     count_offenses = 0
     
     if(end == 0):
@@ -92,9 +107,9 @@ def inject_payloads_from_dataset(path_to_dataset, log_file_name, start, end):
             
             row_values = row.tolist()
             
-            if(row_values[11] == 'T'):
+            if(row_values[11] == 'T' and row_values[1] not in idCanR):
                 count_offenses += 1
-            
+                
             payload = {
             
                 "UUID" : "63cd3082a04",
@@ -110,7 +125,7 @@ def inject_payloads_from_dataset(path_to_dataset, log_file_name, start, end):
             
             print(json_payload)
             
-            send_payload(json_payload, udp_socket, host_and_port)
+            # send_payload(json_payload, udp_socket, host_and_port)
             
             writer = csv.writer(log)
             writer.writerow(row_values)
