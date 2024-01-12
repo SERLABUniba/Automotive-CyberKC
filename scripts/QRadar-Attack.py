@@ -107,7 +107,7 @@ def inject_payloads_from_dataset(path_to_dataset, log_file_name, start, end):
             
             row_values = row.tolist()
             
-            if(row_values[11] == 'T' and row_values[1] not in idCanR):
+            if(row_values[11] == 'T'):
                 count_offenses += 1
                 
             payload = {
