@@ -238,6 +238,7 @@ def createAttackPaths(capec=None):
   allAttackPath = getAttackPath()
 
   if capec != None:
+      
     connection = sqlite3.connect(DB)
     connection.row_factory = sqlite3.Row
     rows = connection.execute('SELECT * FROM Attacks WHERE "Attack Class" LIKE "%' + str(capec) + '%"').fetchall()
@@ -256,6 +257,7 @@ def createAttackPaths(capec=None):
     return attackPaths
   
   else:
+    
     return allAttackPath
 
 
@@ -375,35 +377,66 @@ def tableThreats(offenses, orderBy):
    '''
    return content
 
-
 def rowTableThreats(offense):
+    
+    formatted_time = format_timestamp(offense['last_updated_time'])
 
-  converted_time  = datetime.datetime.fromtimestamp(offense['last_updated_time'] / 1000.0)
-  formatted_time  = converted_time .strftime("%Y-%m-%d %H:%M:%S")
+    category = get_category(offense)
 
-  uuid = offense['offense_source']
-  categories = offense['categories'][0]
-  capec = getCapec(categories)
-  infoCar = getCarInfomation(uuid)
-  builder = infoCar['Builder']
-  model = infoCar['Model']
-  year = infoCar['Year']
+    uuid = offense['offense_source']
+    
+    infoCar = getCarInfomation(uuid)
+    
+    content = build_table_row(offense, offense['id'], offense['description'], infoCar, category, formatted_time)
 
-  content = f'''
+    return content
+
+def format_timestamp(timestamp):
+    converted_time = datetime.datetime.fromtimestamp(timestamp / 1000.0)
+    return converted_time.strftime("%Y-%m-%d %H:%M:%S")
+
+'''
+
+Isolamento del metodo di recupero della categoria di una offense:
+
+Dal momento che le due offense Fuzzy e Spoofing sono mappate, in QRadar, dalla stessa categoria,
+recuperando solo direttamente il valore con offense['categories'][0] si ottiene sempre Bad Content.
+In questo modo, la query sulla Knowledge Base verrebbe fatta filtrando sempre per Bad Content.
+
+Pertanto, è stato inserito il controllo: minaccia di spoofing -> Categoria = "Spoofing"
+
+Altrimenti, offense['categories'][0]
+
+Se si vuole cambiare la logica del recupero della categoria, è sufficiente andare a modificare il metodo get_category
+
+'''
+
+def get_category(offense):
+    if 'Spoofing RPM' or 'Spoofing Gear' in offense['description']:
+        return "Spoofing"
+    else:
+        return offense['categories'][0]
+
+def build_table_row(offense, offense_id, description, info_car, category, formatted_time):
+    
+    capec = getCapec(category)
+    
+    builder, model, year = info_car['Builder'], info_car['Model'], info_car['Year']
+
+    table_row = f'''
         <tr>
-          <td>{offense['id']}</td>
+          <td>{offense_id}</td>
           <td><a href="threat?capec={capec}&builder={builder}&model={model}&year={year}"
-            class="color-white link-hover" style="font-weight:500;">{offense['description']}</a></td>
-          <td>{ ' '.join(infoCar.values()) }</td>
-          <td>{categories}</td>
+            class="color-white link-hover" style="font-weight:500;">{description}</a></td>
+          <td>{' '.join(info_car.values())}</td>
+          <td>{category}</td>
           <td>{formatted_time}</td>
           <td>{getRSM(capec, builder, model, year)}</td>
           <td>{offense['status']}</td>
         </tr>
-  '''
+    '''
 
-  return content
-
+    return table_row
 
 def generateRow(row):
   carModel = row[2]
