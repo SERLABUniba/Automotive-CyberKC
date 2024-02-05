@@ -3,7 +3,20 @@ from varHTML import *
 from util import *
 from manage_files import *
 
+from datetime import datetime
+
 app = Flask(__name__, static_folder='static')
+
+count = 0
+
+def get_timestamp():
+
+    current_time = datetime.now().time()
+    
+    formatted_time = current_time.strftime("%H:%M:%S")
+    
+    print("Current local time:", formatted_time)
+
 
 @app.route('/')
 def index():
@@ -13,11 +26,26 @@ def index():
 @app.route('/webhook', methods=['POST'])
 def webhook():
     if request.method == "POST":
+        
         data = request.json
+        
+        print('################### RECEIVED DATA ###################')
+        
+        print(data)
+        
+        print(f'type(data) = {type(data)}')
+        
+        print('################### RECEIVED DATA ###################')
+        
         attackName, timestamp = parseSplunkRequest(data)
-        attackType, capec = defineAttackType(attackName)
+        # attackType, capec = defineAttackType(attackName)
+        
+        get_timestamp()
+        
         carModel = "Sportage"
-        insertAttack(attackName, timestamp, carModel, attackType, capec)
+        
+        # insertAttack(attackName, timestamp, carModel, attackType, capec)
+        
         return "Webhook received"
 
 @app.route('/checkUpdate')

@@ -7,6 +7,7 @@ def insertAttack(attackName, timestamp, carModel, attackType, capec):
   connection = sqlite3.connect('attacks.db')
   cur = connection.cursor()
   cur.execute('INSERT INTO Attacks(AttackName, Timestamp, CarModel, AttackType, Status, CAPEC, CarBuilder, CarYear) VALUES(?, ?, ?, ?, "Open", ?, "Kia", "2021")', (attackName, timestamp, carModel, attackType, capec))
+  print('INSERIMENTO AVVENUTO CON SUCCESSO')
   connection.commit()
   connection.close()
 

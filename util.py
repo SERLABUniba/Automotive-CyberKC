@@ -411,7 +411,7 @@ Se si vuole cambiare la logica del recupero della categoria, è sufficiente anda
 
 '''
 
-def get_category(offense):
+def get_category_qradar(offense):
     if 'Spoofing RPM' or 'Spoofing Gear' in offense['description']:
         return "Spoofing"
     else:
@@ -438,7 +438,10 @@ def build_table_row(offense, offense_id, description, info_car, category, format
 
     return table_row
 
+# TODO: Correggere mapping per Spoofing
+
 def generateRow(row):
+    
   carModel = row[2]
   timestamp = row[1]
   attackName = row[0]
@@ -469,7 +472,6 @@ def generateRow(row):
   '''
 
   return content
-
 
 def generateThreatsTable(offenses, orderBy):
   rows = ""
@@ -505,9 +507,9 @@ def defineAttackType(attack):
   if attack == "DoS":
     return "Flood", "125"
   elif attack == "Gear Spoofing":
-    return "Bad Content", "28"
+    return "Bad Content", "148"
   elif attack == "RPM Spoofing":
-    return "Bad Content", "28"
+    return "Bad Content", "148"
   elif attack == "Fuzzy":
     return "Bad Content", "28"
    
