@@ -23,6 +23,59 @@ def index():
 
   return render_template(INDEX)
 
+# @app.route('/debug')
+# def debug():
+    
+#     data = {
+#         'sid': 'scheduler__guido__search__RMD5657edf9e349a2147_at_1707128400_5',
+#         'search_name': 'SpoofingGear: detected value out of the range',
+#         'app': 'search',
+#         'owner': 'guido',
+#         'results_link': 'http://Air-di-Guido.homenet.telecomitalia.it:8000/app/search/@go?sid=scheduler__guido__search__RMD5657edf9e349a2147_at_1707128400_5',
+#         'result': {
+#             'CAN_ID': '043f',
+#             'DATA_0': '00',
+#             'DATA_1': '00',
+#             'DATA_2': '00',
+#             'DATA_3': '00',
+#             'DATA_4': '00',
+#             'DATA_5': '00',
+#             'DATA_6': '00',
+#             'DATA_7': '00',
+#             'DLC': '8',
+#             'LABEL': 'T',
+#             'TIMESTAMP': '1478200651.438389',
+#             '_bkt': 'hcrl-car-hacking-dos-index~4~12741995-8D9B-47B2-8A24-24F0BBEC7F94',
+#             '_cd': '4:10702711',
+#             '_eventtype_color': '',
+#             '_indextime': '1706975996',
+#             '_raw': '1478200651.438389,0000,8,00,00,00,00,00,00,00,00,T',
+#             '_serial': '990094',
+#             '_si': ['Air-di-Guido.homenet.telecomitalia.it', 'hcrl-car-hacking-dos-index'],
+#             '_sourcetype': 'csv',
+#             '_time': '1706975704',
+#             'eventtype': '',
+#             'host': 'Vehicle1',
+#             'index': 'hcrl-car-hacking-gear-index',
+#             'isDoS': 'Yes',
+#             'linecount': '1',
+#             'punct': '.,,,,,,,,,,,',
+#             'source': 'gear_datasetpadding.csv',
+#             'sourcetype': 'csv',
+#             'splunk_server': 'Air-di-Guido.homenet.telecomitalia.it',
+#             'splunk_server_group': '',
+#             'timestamp': 'none'
+#         }
+#     }
+
+    
+#     attackName, timestamp = parseSplunkRequest(data)
+#     attackType, capec = defineAttackType(attackName)
+    
+#     carModel = "Sportage"
+    
+#     insertAttack(attackName, timestamp, carModel, attackType, capec)
+
 @app.route('/webhook', methods=['POST'])
 def webhook():
     if request.method == "POST":
@@ -38,13 +91,13 @@ def webhook():
         print('################### RECEIVED DATA ###################')
         
         attackName, timestamp = parseSplunkRequest(data)
-        # attackType, capec = defineAttackType(attackName)
+        attackType, capec = defineAttackType(attackName)
         
         get_timestamp()
         
         carModel = "Sportage"
         
-        # insertAttack(attackName, timestamp, carModel, attackType, capec)
+        insertAttack(attackName, timestamp, carModel, attackType, capec)
         
         return "Webhook received"
 

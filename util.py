@@ -504,15 +504,15 @@ def generateThreatsTable(offenses, orderBy):
   return content
 
 def defineAttackType(attack):
-  if attack == "DoS":
+  
+  if attack == "Vehicle: DoS with high priority":
     return "Flood", "125"
-  elif attack == "Gear Spoofing":
+  elif attack == 'SpoofingGear: detected value out of the range':
     return "Bad Content", "148"
-  elif attack == "RPM Spoofing":
+  elif attack == 'SpoofingRPM: detected value out of the range':
     return "Bad Content", "148"
   elif attack == "Fuzzy":
     return "Bad Content", "28"
-   
 
 def connQradar(limit):
 
@@ -608,7 +608,6 @@ def getDescription(metric, value):
 
 def parseSplunkRequest(data):
   attackName = data['search_name']
-  attackName = attackName[9:]
   timestamp = int(data['result']['_time'])
   hrtimestamp = strftime('%Y-%m-%d %H:%M:%S', localtime(timestamp))
   return attackName, hrtimestamp
