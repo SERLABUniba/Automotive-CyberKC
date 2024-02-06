@@ -238,7 +238,7 @@ def createAttackPaths(capec=None):
   allAttackPath = getAttackPath()
 
   if capec != None:
-      
+    
     connection = sqlite3.connect(DB)
     connection.row_factory = sqlite3.Row
     rows = connection.execute('SELECT * FROM Attacks WHERE "Attack Class" LIKE "%' + str(capec) + '%"').fetchall()
@@ -253,13 +253,12 @@ def createAttackPaths(capec=None):
       for l in allAttackPath:
         if (attack in l) and (l not in attackPaths):
           attackPaths.append(l)
-  
+
     return attackPaths
   
   else:
     
     return allAttackPath
-
 
 def getRSM(capec=None, builder=str(), model=str(), year=str()):
   
@@ -465,6 +464,9 @@ def generateRow(row):
           <td>
             <a href="attackImpact?capec={capec}&builder={builder}&model={carModel}&year={year}&attackName={attackName}" class="color-white link-hover" style="font-weight:500;"><u>View</u>
           </td>
+          <td>
+            <a href="exportKBData?capec={capec}&builder={builder}&model={carModel}&year={year}&attackName={attackName}" class="color-white link-hover" style="font-weight:500;"><u>Export</u></a>
+          </td>
         </tr>
   '''
 
@@ -490,6 +492,7 @@ def generateThreatsTable(offenses, orderBy):
       <th scope="col">Status</th>
       <th scope="col">Impact</th>
       <th scope="col">Detailed Impact</th>
+      <th scope="col">Export KB Data</th>
     </tr>
   </thead>
   <tbody>
@@ -723,3 +726,12 @@ def generateAttackImpactHeader(attackName, builder, model, year):
     return f'<h2 style="color: white; padding-top: 1%">{attackName} Impact</h2>'
   else:
     return f'<h2 style="color: white; padding-top: 1%">{attackName} Impact on {builder} {model} {year}</h2>'
+  
+def clean_json_data(data_dict):
+
+    # Pulire i campi che contengono '\n-' alla fine
+    for key, value in data_dict.items():
+        if isinstance(value, str) and value.endswith('\n-'):
+            data_dict[key] = value[:-2]
+
+    return data_dict

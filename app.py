@@ -86,6 +86,42 @@ def threat():
   
   return render_template(THREATS, content=contentThreatCapec, header=header)
 
+
+@app.route('/exportKBData', methods=['GET'])
+def exportKBData():
+
+    args = request.args
+    capec = f"capec-{args.get('capec')}"
+
+    connection = sqlite3.connect(DB)
+    connection.row_factory = sqlite3.Row
+    rows = connection.execute('SELECT * FROM Attacks WHERE "Attack Class" LIKE "%' + str(capec) + '%"').fetchall()
+    connection.close()
+
+    attack_paths_list = []
+
+    for row in rows:
+        d = dict(row)
+        attack_paths_list.append(clean_json_data(d))
+
+    response = requests.post(POST_URL, json = attack_paths_list)
+
+    if response.status_code == 200:
+        return """
+        <script>
+            alert("Dati inviati con successo al server");
+            window.location.href = '/splunkDashboard'; // Ridireziona l'utente all'endpoint /knowledgebase
+        </script>
+        """
+    else:
+        return """
+        <script>
+            alert("Errore nell'invio dei dati al server");
+            window.location.href = '/splunkDashboard'; // Ridireziona l'utente all'endpoint /knowledgebase
+        </script>
+        """
+
+
 @app.route('/attackImpact', methods=['GET'])
 def attackImpact():
     args = request.args
@@ -103,7 +139,6 @@ def attackImpact():
 
     header = generateAttackImpactHeader(attackName, builder, model, year)
     return render_template(ATTACKIMPACT, content=contentImpact, header=header)
-  
    
 @app.route('/knowledgebase')
 def knowledgebase():

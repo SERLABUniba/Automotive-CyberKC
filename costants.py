@@ -18,3 +18,4 @@ SEC_TOKEN = '2671d7aa-5fa1-4724-9e13-5232f3291374'
 DOMAIN = '127.0.0.1'
 PORT = '8080'
 LIMIT = 500
+POST_URL = 'https://webhook.site/1ff70eb2-88e7-4cfb-a836-98e69533fd63'
