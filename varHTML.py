@@ -1,16 +1,15 @@
 def getHTML_radarError():
-    
-    error = '''
+    error = """
       <div class="alert alert-info" role="alert" style="margin-top: 2%;">
         Connection Error. Make sure Qradar is open and working properly.
       </div>
-    '''
+    """
 
     return error
 
+
 def getHTML_contentKB():
-    
-    content = '''
+    content = """
           <div class="table-responsive custom-table-responsive">
         <table data-toggle="table" data-search="true" data-show-columns="true" data-pagination="true" class="table table-dark">
           <thead>
@@ -27,17 +26,18 @@ def getHTML_contentKB():
               <th data-sortable="true" class="text-center" style="width:8%" scope="col">Severity</th>
               <th class="text-center" style="width:8%" scope="col">SC</th>
               <th class="text-center" scope="col">Details</th>
+              <th class="text-center" scope="col">NVD</th>
             </tr>
           </thead>
           <tbody>
     
-    '''
+    """
 
     return content
 
+
 def getHTML_contentThreatCapec():
-    
-  content = '''
+    content = """
           <div class="table-responsive custom-table-responsive">
         <table data-toggle="table" data-search="true" data-show-columns="true" data-pagination="true" data-sort-name="risk" data-sort-order="desc" class="table custom-table table-hover table-dark ">
           <thead>
@@ -54,9 +54,27 @@ def getHTML_contentThreatCapec():
               <th data-sortable="true" data-field="risk" class="text-center" style="width:8%" scope="col">RS</th>
               <th class="text-center" style="width:8%" scope="col">RI</th>
               <th class="text-center" scope="col">Details</th>
+              <th class="text-center" scope="col">NVD</th>
             </tr>
           </thead>
           <tbody>
-  '''
+  """
 
-  return content
+    return content
+
+
+def getHTML_contentAttackImpact():
+    content = """
+        <div class="table-responsive custom-table-responsive">
+        <table data-toggle="table" data-search="false" data-show-columns="false" data-pagination="false"  class="table custom-table table-hover table-dark ">
+          <thead>
+            <tr>
+              <th data-sortable="false" scope="col">Consequences</th>
+              <th data-sortable="false" data-field="risk" class="text-center" style="width:8%" scope="col">RS</th>
+              <th class="text-center" style="width:8%" scope="col">RI</th>
+            </tr>
+          </thead>
+          <tbody>
+  """
+
+    return content

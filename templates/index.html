@@ -10,6 +10,7 @@
         crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    
     <style>
     body {
         background-image: url({{ url_for('static', filename='background.png') }});
@@ -137,7 +138,7 @@ button:hover i::after {
   }
 }
 
-    </style>
+</style>
 
 </head>
 
@@ -151,7 +152,8 @@ button:hover i::after {
                 <h2>Automotive Knowledge Base for Supporting Vehicle-SOC Analysts</h2>   
             </div> 
             <div class="row-centered-element">
-                <button style="--clr:#002060" onclick=" enter()"><span>ENTRY</span><i></i></button> 
+                <button style="--clr:#002060" onclick="enter()"><span>QRadar</span><i></i></button>
+                <button style="--clr:#002060" onclick="enterSplunk()"><span>Splunk</span><i></i></button>
             </div>
         </div>
     </div>
@@ -162,7 +164,10 @@ button:hover i::after {
     function enter()
     {
          location.href = "dashboard";
-    } 
-    </script>
+    }
+    function enterSplunk(){
+        location.href= "splunkDashboard"
+    }
+</script>
 
 </html>

@@ -9,6 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 
     <style>
         a.color-white{
@@ -42,10 +44,16 @@
                 </a>
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link color-white" href="/dashboard">Dashboard</a>
+                        <a class="nav-link color-white" href="/dashboard">QRadar Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link color-white" href="/threats">Threats</a>
+                        <a class="nav-link color-white" href="/threats">QRadar Threats</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link color-white" href="/splunkDashboard">Splunk Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link color-white" href="/splunkThreats">Splunk Threats</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link color-white" href="/knowledgebase">Knowledge Base</a>
@@ -74,6 +82,130 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
 
+    <script>
+        function getNVD(param1) {
+          fetch('/nvd', {
+              method: 'POST',
+              body: JSON.stringify({
+                'description': param1
+              }),
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              displayContentNVD(data);
+            });
+        }
+      
+        function displayContentNVD(data) {
+          var modal = document.getElementById("modalNVD");
+          var container = document.getElementById("responseContainer");
+          container.innerHTML = "";
+          
+          for (var queryKey in data) {
+            if (data.hasOwnProperty(queryKey)) {
+              var query = data[queryKey];
+              
+              for (var key in query) {
+                if (query.hasOwnProperty(key)) {
+                  var info = query[key];
+                  var html = `
+
+                        <h2><p align="center"> ${key}</p></h2>
+                        `
+                        for(var sentences_key in info) {
+                          if(info.hasOwnProperty(sentences_key)) {
+                            html +=`
+                            <div class="card border-light mb-3" style="max-width: 100rem;">
+                              <div class="card-body" style="background-color: #1e1e1e;">
+                                <table class="table table-borderless table-sm" style="color: white;">
+                                <tr>
+                                  <td><p align="center">CVE ID</p></td>
+                                  <td><p>${info[sentences_key].CVE}</p></td>
+                                </tr>
+                                <tr>
+                                  <td><p align="center">CVE Description</p></td>
+                                  <td><p align="justify">${info[sentences_key].Description}</p></td>
+                                </tr>
+                                <tr>
+                                  <td><p align="center">CVSS v2</p></td>
+                                  <td><p align="justify">${info[sentences_key].CVSSScoreV2}</p></td>
+                                </tr>
+                                <tr>
+                                  <td><p align="center">CVSS v3</p></td>
+                                  <td><p align="justify">${info[sentences_key].CVSSScoreV3}</p></td>
+                                </tr>
+                                `
+                                if(info[sentences_key].CWEID === "N/A") {
+                                  html +=`
+                                  <tr>
+                                    <td><p align="center">CWE</p></td>
+                                    <td><p align="justify">${info[sentences_key].CWEID}</p></td>
+                                  </tr>
+                                  `
+                                }
+                                else {
+                                  html +=`
+                                  <tr>
+                                    <td><p align="center">CWE</p></td>
+                                    <td><p align="justify"><a href="${info[sentences_key].CWEDetailsSite}" target="_blank">${info[sentences_key].CWEID}</a></p></td>
+                                  </tr>
+                                  `
+                                }
+                                html += `
+                                <tr>
+                                  <td><p align="center">CWE Description</p></td>
+                                  <td><p align="justify">${info[sentences_key].CWEDescription}</p></td>
+                                </tr>
+                                  <td><p align="center">References</p></td>
+                                  <td>
+                                  `
+                                  var referencesArray = info[sentences_key].References.split(',');
+                                  for (i in referencesArray){
+                                     html += `
+                                    <p><a href="${referencesArray[i]}" target="_blank">${referencesArray[i]}</a></p>
+                                    `
+                                  }
+                                  html +=`
+                                  </td>
+                                  </tr>
+
+                              </tbody>
+                            </table>
+                          </div>
+                                </div>
+                            `
+                          }
+                        }
+                      html +=`
+
+                      `
+                  ;
+                  container.innerHTML += html;
+                }
+              }
+            }
+          }
+      
+          modal.style.display = "block";
+        }
+      
+        var closeBtn = document.getElementsByClassName("btn-close")[0];
+          closeBtn.onclick = function() {
+            var modal = document.getElementById("modalNVD");
+            modal.style.display = "none";
+        }
+      
+        window.onclick = function(event) {
+          var modal = document.getElementById("modalNVD");
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        }
+      
+      </script>
 
 </body>
 

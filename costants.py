@@ -1,19 +1,23 @@
 # Files
-MAPSETTINGS = 'mapSettings.conf'
-CARSETTINGS = 'cars.conf'
-ATTACKPATH = 'attackPath.csv'
-DB = 'AAD.db'
+MAPSETTINGS = "mapSettings.conf"
+CARSETTINGS = "cars.conf"
+ATTACKPATH = "attackPath.csv"
+DB = "AAD.db"
+
+# Tables AAD
+TABLE = "Automotive Security Attacks"  # V3 Attacks for V2
 
 # HTML pages
-TEMPLATE = 'template'
-DASHBOARD = 'dashboard.html'
-INDEX = 'index.html'
-KNOWLEDGEBASE = 'knowledgebase.html'
-THREATS = 'threats.html'
-SEARCH = 'search.html'
+TEMPLATE = "template"
+DASHBOARD = "dashboard.html"
+INDEX = "index.html"
+KNOWLEDGEBASE = "knowledgebase.html"
+THREATS = "threats.html"
+SEARCH = "search.html"
+ATTACKIMPACT = "attackimpact.html"
 
 # Varie
-SEC_TOKEN = '2671d7aa-5fa1-4724-9e13-5232f3291374'
-DOMAIN = '127.0.0.1'
-PORT = '8080'
+# DOMAIN = "127.0.0.1"
+DOMAIN = "10.11.97.20"
+PORT = "443"
 LIMIT = 500

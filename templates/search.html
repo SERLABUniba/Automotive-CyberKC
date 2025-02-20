@@ -8,6 +8,7 @@
         <div class="col-4">
             <form action="{{ url_for('threat') }}" method="GET">
                 <h1>Search</h1>
+                {{ error_content|safe }}
                 <label for="form-select" class="form-label">Threat</label>
                 <select class="form-select" name="capec">
                     <option selected>Open this select menu</option>
